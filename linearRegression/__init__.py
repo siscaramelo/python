@@ -13,11 +13,13 @@ def computeCost(X, y, theta):
     #
     
     # Intial values
-    computeCost = 0
-    m           = np.size(y)     # Number of training examples
+    J = 0
+    m = np.size(y)     # Number of training examples
     
     # The linear regression cost function
-    computeCost = 1/(2*m)*(np.dot(np.transpose(np.dot(X,theta)-y),np.dot(X,theta)-y))
+    J = 1/(2*m)*(np.dot(np.transpose(np.dot(X,theta)-y),np.dot(X,theta)-y))
+    
+    return J
     
 
 def gradientDescent(X, y, theta, alpha, num_iters):    
@@ -35,3 +37,27 @@ def gradientDescent(X, y, theta, alpha, num_iters):
         theta = theta - alpha*(np.dot(np.transpose(X),np.dot(X,theta)-y))/m
 
         J_history[i] = computeCost(X, y, theta)
+        
+    return theta, J_history
+
+
+def featureNormalize(X):
+    
+    #
+    #    Normalize the features in X
+    #
+    
+    X_norm  = X
+    mu      = np.zeros((1, np.size(X, 1)))
+    sigma   = np.zeros((1, np.size(X, 1)))
+    
+    # Compute the mean of each feature
+    mu      = np.sum(X,0)/np.size(X,1)
+    X_norm  = X-mu
+    
+    # Compute the standard deviation
+    sigma  = np.std(X)
+    X_norm = X_norm*(sigma**-1)
+    
+    return X_norm, mu, sigma
+    
