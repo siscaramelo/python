@@ -57,7 +57,7 @@ def featureNormalize(X):
     
     # Compute the standard deviation
     sigma  = np.std(X)
-    X_norm = X_norm*(sigma**-1)
+    X_norm = np.array(X_norm)*np.array(np.power(sigma,-1))
     
     return X_norm, mu, sigma
     
