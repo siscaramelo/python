@@ -61,3 +61,14 @@ def featureNormalize(X):
     
     return X_norm, mu, sigma
     
+    
+def normalEqn(X, y):
+    
+    #
+    #    Computes the closed-form solution to linear regression
+    #    
+    
+    theta = np.zeros((np.size(X,1), 1))
+    
+    theta = np.power(np.transpose(X)*X,-1)*np.transpose(X)*y
+    
