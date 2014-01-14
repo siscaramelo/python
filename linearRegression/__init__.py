@@ -17,7 +17,7 @@ def computeCost(X, y, theta):
     m = np.size(y)     # Number of training examples
     
     # The linear regression cost function
-    J = 1/(2*m)*(np.dot(np.transpose(np.dot(X,theta)-y),np.dot(X,theta)-y))
+    J = (np.dot(np.transpose(np.dot(X,theta)-y),np.dot(X,theta)-y))/(2*m)
     
     return J
     
@@ -56,7 +56,7 @@ def featureNormalize(X):
     X_norm  = X-mu
     
     # Compute the standard deviation
-    sigma  = np.std(X,0,ddof=1)
+    sigma  = np.std(X,0,ddof=1) # N-1
     X_norm = np.array(X_norm)*np.array(np.power(sigma,-1))
     
     return X_norm, mu, sigma
@@ -69,8 +69,8 @@ def normalEqn(X, y):
     #    
     
     theta = np.zeros((np.size(X,1), 1))
-    X0 = np.ones([np.size(X,0),1])
-    X=np.concatenate([X0,X],1)
+#    X0 = np.ones([np.size(X,0),1])
+#    X=np.concatenate([X0,X],1)
     
     theta = np.dot(np.linalg.pinv(np.dot(np.transpose(X),X)),np.dot(np.transpose(X),y))
     

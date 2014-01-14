@@ -4,6 +4,7 @@ Created on 08/01/2014
 @author: pgiraldez
 '''
 import numpy as np
+import matplotlib.pyplot as plt
 from linearRegression import *
 
 if __name__ == '__main__':
@@ -22,7 +23,27 @@ if __name__ == '__main__':
     print X_norm, mu, sigma
     
     print
-    print "--- Norma Equation ---"
+    print "--- Normal Equation ---"
+
+    X0 = np.ones([np.size(X,0),1])
+    X=np.concatenate([X0,X],1)
     
     theta = normalEqn(X, y)
     print theta
+    
+    print
+    print '--- Running Gradient Descent ---'
+    
+    alpha = 0.01
+    num_iters = 1400
+    theta = np.zeros([3, 1])
+    theta, J_history = gradientDescent(X, y, theta, alpha, num_iters)
+    
+    print theta
+    #print J_history
+    
+    plt.plot(range(1,num_iters+1),J_history)
+    plt.title('Cost function evolution')
+    plt.xlabel('Iteration number')
+    plt.ylabel('Cost')
+    plt.show()
