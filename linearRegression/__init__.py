@@ -52,11 +52,11 @@ def featureNormalize(X):
     sigma   = np.zeros((1, np.size(X, 1)))
     
     # Compute the mean of each feature
-    mu      = np.sum(X,0)/np.size(X,1)
+    mu      = np.sum(X,0)/np.size(X,0)
     X_norm  = X-mu
     
     # Compute the standard deviation
-    sigma  = np.std(X)
+    sigma  = np.std(X,0,ddof=1)
     X_norm = np.array(X_norm)*np.array(np.power(sigma,-1))
     
     return X_norm, mu, sigma
@@ -69,6 +69,11 @@ def normalEqn(X, y):
     #    
     
     theta = np.zeros((np.size(X,1), 1))
+    X0 = np.ones([np.size(X,0),1])
+    X=np.concatenate([X0,X],1)
     
-    theta = np.power(np.transpose(X)*X,-1)*np.transpose(X)*y
+    theta = np.dot(np.linalg.pinv(np.dot(np.transpose(X),X)),np.dot(np.transpose(X),y))
+    
+    return theta
+    
     
