@@ -4,7 +4,7 @@ Created on 08/01/2014
 
 @author: pabgir
 '''
-import numpy as np
+from numpy import *
 
 def computeCost(X, y, theta):
     
@@ -14,10 +14,10 @@ def computeCost(X, y, theta):
     
     # Intial values
     J = 0
-    m = np.size(y)     # Number of training examples
+    m = size(y)     # Number of training examples
     
     # The linear regression cost function
-    J = (np.dot(np.transpose(np.dot(X,theta)-y),np.dot(X,theta)-y))/(2*m)
+    J = dot(transpose(dot(X,theta)-y),dot(X,theta)-y)/(2*m)
     
     return J
     
@@ -28,13 +28,13 @@ def gradientDescent(X, y, theta, alpha, num_iters):
     #    Performs gradient descent to learn theta
     #
     
-    m           = np.size(y)     # Number of training examples
-    J_history   = np.zeros((num_iters,1))   # Inicializamos el vector de datos historicos
+    m           = size(y)     # Number of training examples
+    J_history   = zeros((num_iters,1))   # Inicializamos el vector de datos historicos
     
     for i in range(num_iters):
      
         # theta = theta - alpha/m*X'*(X*theta-y)
-        theta = theta - alpha*(np.dot(np.transpose(X),np.dot(X,theta)-y))/m
+        theta = theta - alpha*(dot(transpose(X),dot(X,theta)-y))/m
 
         J_history[i] = computeCost(X, y, theta)
         
@@ -48,16 +48,16 @@ def featureNormalize(X):
     #
     
     X_norm  = X
-    mu      = np.zeros((1, np.size(X, 1)))
-    sigma   = np.zeros((1, np.size(X, 1)))
+    mu      = zeros((1, size(X, 1)))
+    sigma   = zeros((1, size(X, 1)))
     
     # Compute the mean of each feature
-    mu      = np.sum(X,0)/np.size(X,0)
+    mu      = sum(X,0)/size(X,0)
     X_norm  = X-mu
     
     # Compute the standard deviation
-    sigma  = np.std(X,0,ddof=1) # N-1
-    X_norm = np.array(X_norm)*np.array(np.power(sigma,-1))
+    sigma  = std(X,0,ddof=1) # N-1
+    X_norm = X_norm*power(sigma,-1)
     
     return X_norm, mu, sigma
     
@@ -68,11 +68,9 @@ def normalEqn(X, y):
     #    Computes the closed-form solution to linear regression
     #    
     
-    theta = np.zeros((np.size(X,1), 1))
-#    X0 = np.ones([np.size(X,0),1])
-#    X=np.concatenate([X0,X],1)
+    theta = zeros((size(X,1), 1))
     
-    theta = np.dot(np.linalg.pinv(np.dot(np.transpose(X),X)),np.dot(np.transpose(X),y))
+    theta = dot(linalg.pinv(dot(transpose(X),X)),dot(transpose(X),y))
     
     return theta
     

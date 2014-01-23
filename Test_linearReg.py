@@ -3,15 +3,23 @@ Created on 08/01/2014
 
 @author: pgiraldez
 '''
-import numpy as np
+from numpy import *
 import matplotlib.pyplot as plt
 from linearRegression import *
+import csv
 
 if __name__ == '__main__':
     
     # Feature Normalize funtion check
-    X = np.array([[1.,2.],[3.,4.],[5.,6.]])
-    y = np.array([[10.],[16.],[22.]])
+    X = array([[1.,2.],[3.,4.],[5.,6.]])
+    y = array([[10.],[16.],[22.]])
+
+    #    Reading data from a file
+    F = genfromtxt('C:\Users\pgiraldez\Documents\Octave\mlclass-ex1\ex1data2.txt',delimiter=',')
+
+    X = F[:,[0,1]]
+    y = F[:,2]
+    y = reshape(y,(47,1))
     
     print 'X = ',X
     print 'y = ',y
@@ -25,8 +33,8 @@ if __name__ == '__main__':
     print
     print "--- Normal Equation ---"
 
-    X0 = np.ones([np.size(X,0),1])
-    X=np.concatenate([X0,X],1)
+    X0 = ones([size(X,0),1])
+    X=concatenate([X0,X_norm],1)
     
     theta = normalEqn(X, y)
     print theta
@@ -34,16 +42,20 @@ if __name__ == '__main__':
     print
     print '--- Running Gradient Descent ---'
     
-    alpha = 0.01
-    num_iters = 1400
-    theta = np.zeros([3, 1])
+    alpha = 0.1
+    num_iters = 400
+    theta = zeros([size(X,1), 1])
     theta, J_history = gradientDescent(X, y, theta, alpha, num_iters)
     
     print theta
-    #print J_history
+    # print
+    # print J_history
     
     plt.plot(range(1,num_iters+1),J_history)
     plt.title('Cost function evolution')
     plt.xlabel('Iteration number')
     plt.ylabel('Cost')
     plt.show()
+
+    
+    #print dim(F), dim(X), dim(y)
