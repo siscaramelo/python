@@ -12,7 +12,7 @@ def sigmoid(Z):
     #
     
     g = zeros(shape(Z))       # Initialize g
-    g = 1./(1+power(e,-Z))           # Compute g
+    g = 1./(1.+power(e,-Z))           # Compute g
     
     return g
 
