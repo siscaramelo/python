@@ -79,17 +79,28 @@ def nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X
         Y[i,y[i]-1] = 1
         
     # First we compute the Cost Function 
-    Y = Y.flatten()
-    h = nnH(Theta1,Theta2,X).flatten()
-    J = (-1.*Y.dot(log(h).T)-(1.-Y).dot(log(1.-h).T))/m
+    h = nnH(Theta1,Theta2,X)
+    Yf = Y.flatten()
+    Hf = h.flatten()
+    J = (-1.*Yf.dot(log(Hf).T)-(1.-Yf).dot(log(1.-Hf).T))/m
     
     # Regularize Cost Function
     J = J + plambda*(sum(Theta1[:,1:]**2)+sum(Theta2[:,1:]**2))/(2.*m)
     
     # Implement the Backpropagation algorithm
     # Compute delta
-#     delta3 = h - Y
-#     delta2 = delta3.dot(Theta2[:,1:])*sigmoidGradient(X.dot(Theta1.T))
+    A1 = c_[ones([m,1]),X]
+    A2 = c_[ones([m,1]),sigmoid(A1.dot(Theta1.T))]
     
+    delta3 = h - Y
+    delta2 = multiply(delta3.dot(Theta2[:,1:]),sigmoidGradient(A1.dot(Theta1.T)))
     
-    return J #, grad
+    Theta2bias = Theta2; Theta2bias[:,1] = 0;
+    Theta1bias = Theta1; Theta1bias[:,1] = 0;
+
+    Theta2_grad = delta3.T.dot(A2)/m + plambda*Theta2bias/m
+    Theta1_grad = delta2.T.dot(A1)/m + plambda*Theta1bias/m
+    
+    grad = c_[Theta1_grad.flatten(),Theta2_grad.flatten()]
+    
+    return J, grad

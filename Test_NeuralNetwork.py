@@ -84,7 +84,7 @@ if __name__ == '__main__':
     # Regualization parameter
     plambda = 0
     
-    J = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
+    J, grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
     
     print('Cost at parameters (loaded from ex4weights): %f' % J)
     print('(this value should be about 0.287629)')
@@ -93,12 +93,12 @@ if __name__ == '__main__':
     print('\nFeed-Forward using Neural Network w/regularization (lambda=1)\n')
     plambda = 1
     
-    J = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
+    J, grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
 
     print('Cost at parameters (loaded from ex4weights): %f' % J)
     print('(this value should be about 0.383770)')
     
-    print('Evaluating sigmoid gradient...')
+    print('\nEvaluating sigmoid gradient...')
     gradient = sigmoidGradient(array([1, -0.5, 0, 0.5, 1]))
     print('Sigmoid gradient evaluated at [1 -0.5 0 0.5 1]:\n%s' % gradient)
 
