@@ -78,30 +78,61 @@ if __name__ == '__main__':
     # Unroll parameters
     nn_params = concatenate((Theta1.flatten(),Theta2.flatten()))
     
+    ## ================ Part 3: Compute Cost Function ================
     # Feed-forward
     print('\nFeed-Forward using Neural Network\n')
     
     # Regualization parameter
     plambda = 0
     
-    J, grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
+    J, grad  = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
     
     print('Cost at parameters (loaded from ex4weights): %f' % J)
     print('(this value should be about 0.287629)')
     
-    # Feed-forward with regularization
+    ## ================ Part 4: Implement Regularization ================
     print('\nFeed-Forward using Neural Network w/regularization (lambda=1)\n')
     plambda = 1
     
-    J, grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
+    J, grad  = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
 
     print('Cost at parameters (loaded from ex4weights): %f' % J)
     print('(this value should be about 0.383770)')
-    
+
+    ## ================ Part 5: Sigmoid Gradient ================
     print('\nEvaluating sigmoid gradient...')
     gradient = sigmoidGradient(array([1, -0.5, 0, 0.5, 1]))
     print('Sigmoid gradient evaluated at [1 -0.5 0 0.5 1]:\n%s' % gradient)
 
+    raw_input('\nPress any key to continue\n')
 
+    ## ================ Part 6: Initializing Pameters ================
+    print('\nInitializing Neural Network Parameters ...\n')
 
+    init_Theta1 = randInitializeWeights(input_layer_size, hidden_layer_size)
+    init_Theta2 = randInitializeWeights(hidden_layer_size, num_labels)
+
+    # Unroll parameters
+    initial_nn_params = [init_Theta1.flatten(), init_Theta2.flatten()] 
     
+    ## =============== Part 8: Implement Regularization ===============
+    # Once your backpropagation implementation is correct, you should now
+    # continue to implement the regularization with the cost and gradient.
+    #
+
+    print('Checking Backpropagation...')
+    checkNNGradients()
+
+    print('\nChecking Backpropagation (w/ Regularization) ... \n')
+
+    #  Check gradients by running checkNNGradients
+    plambda = 3
+    checkNNGradients(plambda)
+
+    # Also output the costFunction debugging values
+    debug_J, debug_grad  = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
+
+    print
+    print('\nCost at (fixed) debugging parameters (w/ lambda = 3): %f ', debug_J[0,0]) 
+    print('\n(this value should be about 0.576051)\n\n')
+    print('Program paused. Press enter to continue.\n')
