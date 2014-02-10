@@ -27,7 +27,7 @@ def predict(Theta1, Theta2, X):
 
     A2    = c_[ones(m), A2]
 #    p = sigmoid(dot(A2,Theta2.T)) # Output layer
-    p = argmax(sigmoid(dot(A2,Theta2.T)),1) # Output layer
+    p = argmax(sigmoid(dot(A2,Theta2.T)),1)+1 # Output layer
     
     return p
 
@@ -117,9 +117,9 @@ def nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X
     Theta2_grad = delta3.T.dot(A2)/m + plambda*Theta2bias/m
     Theta1_grad = delta2.T.dot(A1)/m + plambda*Theta1bias/m
     
-    grad = c_[Theta1_grad.flatten(),Theta2_grad.flatten()]
+    grad = array(concatenate([Theta1_grad.flatten(),Theta2_grad.flatten()],axis=1))
     
-    return J, grad
+    return J.item(0), grad.flatten()
 
 def debugInitWeights(fan_out, fan_in):
     return sin(1 + arange((1 + fan_in) * fan_out)).reshape((1 + fan_in, fan_out)).T / 10.0
@@ -163,3 +163,9 @@ def computeNumericalGradient(cost_func, theta):
         numgrad[p] = (loss2 - loss1) / (2.0 * eps)
         perturb[p] = 0.0
     return numgrad
+
+def nnCostFunction_Cost(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda):
+    return nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)[0]
+
+def nnCostFunction_Grad(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda):
+    return nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)[1]

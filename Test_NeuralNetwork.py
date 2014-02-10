@@ -7,6 +7,7 @@ Created on 27/01/2014
 from numpy import *
 from NeuralNetwork import *
 from matplotlib import pyplot as plot
+from scipy import optimize
 import matplotlib.cm as cm
 import scipy.io
 
@@ -113,7 +114,7 @@ if __name__ == '__main__':
     init_Theta2 = randInitializeWeights(hidden_layer_size, num_labels)
 
     # Unroll parameters
-    initial_nn_params = [init_Theta1.flatten(), init_Theta2.flatten()] 
+    initial_nn_params = concatenate([init_Theta1.flatten(), init_Theta2.flatten()]) 
     
     ## =============== Part 8: Implement Regularization ===============
     # Once your backpropagation implementation is correct, you should now
@@ -133,6 +134,40 @@ if __name__ == '__main__':
     debug_J, debug_grad  = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, plambda)
 
     print
-    print('\nCost at (fixed) debugging parameters (w/ lambda = 3): %f ', debug_J[0,0]) 
+    print('\nCost at (fixed) debugging parameters (w/ lambda = 3): %f ', debug_J) 
     print('\n(this value should be about 0.576051)\n\n')
-    print('Program paused. Press enter to continue.\n')
+    # print shape(debug_grad)
+    raw_input('\nPress any key to continue\n')
+
+    ##=================== Part 8: Training NN ===================
+    print('\nTraining Neural Network... \n')
+    
+    plambda = 1
+    
+    print('Comienza la optimizacion...\n')
+    # print shape(initial_nn_params)
+    
+    result = optimize.minimize(
+        nnCostFunction,
+        initial_nn_params,
+        args=(input_layer_size, hidden_layer_size, num_labels, X, y, plambda),
+        method='CG',
+        jac=True,
+        options={'maxiter': 50,'disp': True}
+    )
+
+    #result = optimize.fmin_cg(nnCostFunction_Cost, initial_nn_params,fprime=nnCostFunction_Grad,args=(input_layer_size, hidden_layer_size, num_labels, X, y, plambda), maxiter=50, disp=1)
+ 
+    print('Finaliza la optimizacion...\n')
+    nn_params = result.x
+    
+    boundary = (input_layer_size + 1) * hidden_layer_size
+    Theta1 = nn_params[:boundary].reshape([hidden_layer_size, input_layer_size + 1])
+    Theta2 = nn_params[boundary:].reshape([num_labels, hidden_layer_size + 1])
+    
+    print('Visualizing Neural Network ...')
+    displayData(Theta1[:, 1:])
+    displayData(Theta2[:, 1:])
+    predictions = predict(Theta1, Theta2, X)
+    accuracy = 100 * mean(predictions == y)
+    print('Training set accuracy: %0.2f %%' % accuracy)
