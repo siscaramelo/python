@@ -14,25 +14,75 @@ class model():
     kernelFunction = None
     alphas = None
     w = None
+    
+def svmPredict(model, X):
+    #SVMPREDICT returns a vector of predictions using a trained SVM model
+    #(svmTrain). 
+    #   pred = SVMPREDICT(model, X) returns a vector of predictions using a 
+    #   trained SVM model (svmTrain). X is a mxn matrix where there each 
+    #   example is a row. model is a svm model returned from svmTrain.
+    #   predictions pred is a m x 1 column of predictions of {0, 1} values.
+    #
 
-def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
+    # Check if we are getting a column vector, if so, then assume that we only
+    # need to do prediction for a single example
+    if (size(X, 1) == 1):
+        # Examples should be in rows
+        X = X.T
+
+        # Dataset 
+    m = size(X, 0)
+    p = zeros([m, 1])
+    pred = zeros([m, 1])
+
+    functionName = getattr(model.kernelFunction,'__name__')
+    if (functionName == 'linearKernel'):
+        # We can use the weights and bias directly if working with the 
+        # linear kernel
+        p = X * model.w + model.b
+    elif (functionName == 'lgaussianKernel'):
+        # Vectorized RBF Kernel
+        # This is equivalent to computing the kernel on every pair of examples
+        X1 = sum(X**2, 2)
+        X2 = sum(model.X**2, 2).T
+        K = X1+(X2 - 2 * dot(X, model.X.T))
+        K = model.kernelFunction(1, 0) ** K
+        K = model.y.T * K
+        K = model.alphas.T * K
+        p = sum(K, 2)
+    else:
+        # Other Non-linear kernel
+        for i in range(m):
+            prediction = 0
+            for j in range(size(model.X, 0)):
+                prediction = prediction + model.alphas[j] * model.y[j] * model.kernelFunction(X[i,:].T, model.X[j,:].T)
+        
+            p[i] = prediction + model.b
+    
+
+    # Convert predictions into 0 / 1
+    pred[p >= 0] =  1
+    pred[p <  0] =  0
+
+
+def svmTrain(X, y, C, kernelFunction, tol = 1e-3, max_passes = 20):
     # Data parameters
     m = size(X, 0)
     n = size(X, 1)
 
     # Map 0 to -1
-    Y = copy(Y)
+    Y = copy(y)
     Y[Y==0] = -1
     Y = reshape(Y,[size(Y),1])
 
     # Variables
     alphas = zeros([m, 1])
-    b      = 0
+    b      = 0.
     E      = zeros([m, 1])
     passes = 0
-    eta    = 0
-    L      = 0
-    H      = 0
+    eta    = 0.
+    L      = 0.
+    H      = 0.
     
     functionName = getattr(kernelFunction,'__name__')
     if (functionName == 'linearKernel'):
@@ -40,7 +90,7 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
         # This is equivalent to computing the kernel on every pair of examples
         K = X.dot(X.T)
         
-    elif (functionName == 'gaussianKernel'):
+    elif (functionName == 'lgaussianKernel'):
         # Vectorized RBF Kernel
         # This is equivalent to computing the kernel on every pair of examples
         X2 = sum(X**2, 1)
@@ -50,45 +100,48 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
     else:
         #    Pre-compute the Kernel Matrix
         #    The following can be slow due to the lack of vectorization       
-        K = zeros(m)
-        for i in range(1, m):
+        K = zeros([m,m])
+        for i in range(0, m):
             for j in range(i, m):
                 K[i, j] = kernelFunction(X[i,:].T, X[j,:].T)
                 K[j, i] = K[i, j]     # the matrix is symmetric    
          
     # Train
-    print('\nTraining ...')
+    print('\nTraining ...'),
     dots = 12
     while (passes < max_passes):
             
         num_changed_alphas = 0
-        for i in range(1, m):        
+        
+        for i in range(0, m):        
             # Calculate Ei = f(x[i]) - y[i] using (2). 
             # E[i] = b + sum (X(i, :) * (repmat(alphas.*Y,1,n).*X)') - Y[i];
-            E[i] = b + sum (alphas * Y * K[:,i]) - Y[i]
+            KI = K[:,i].reshape([size(K[:,i]),1])
+            E[i] = b + sum (alphas * Y * KI) - Y[i]
         
             if ((Y[i]*E[i] < -tol and alphas[i] < C) or (Y[i]*E[i] > tol and alphas[i] > 0)):
             
                 # In practice, there are many heuristics one can use to select
                 # the i and j. In this simplified code, we select them randomly.
-                j = ceil((m-1) * random.random())
+                j = int(ceil((m-1) * random.random()))
                 while j == i:  # Make sure i \neq j
-                    j = ceil((m-1) * random.random())
+                    j = int(ceil((m-1) * random.random()))
         
 
-                # Calculate Ej = f(x[j]) - y[j] using (2).
-                E[j] = b + sum(alphas * Y * K[:,j]) - Y[j]
+                # Calculate Ej = f(x[j]) - y[j] using (2).                
+                KJ = K[:,j].reshape([size(K[:,j]),1])
+                E[j] = b + sum(alphas * Y * KJ) - Y[j]
 
                 # Save old alphas
-                alpha_i_old = alphas[i]
-                alpha_j_old = alphas[j]
+                alpha_i_old = copy(alphas[i]) ## The copy functio here is IMPORTANT
+                alpha_j_old = copy(alphas[j])
             
                 # Compute L and H by (10) or (11). 
                 if (Y[i] == Y[j]):
-                    L = max(0, alphas[j] + alphas[i] - C)
+                    L = max(0., alphas[j] + alphas[i] - C)
                     H = min(C, alphas[j] + alphas[i])
                 else:
-                    L = max(0, alphas[j] - alphas[i])
+                    L = max(0., alphas[j] - alphas[i])
                     H = min(C, C + alphas[j] - alphas[i])
                      
                 if (L == H):
@@ -96,8 +149,8 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
                     continue
             
                 # Compute eta by (14).
-                eta = 2 * K[i,j] - K[i,i] - K[j,j]
-                if (eta >= 0):
+                eta = 2. * K[i,j] - K[i,i] - K[j,j]
+                if (eta >= 0.):
                     # continue to next i. 
                     continue
             
@@ -120,12 +173,12 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
             
                 # Compute b1 and b2 using (17) and (18) respectively. 
                 b1 = b - E[i] - Y[i] * (alphas[i] - alpha_i_old) *  K[i,j].T - Y[j] * (alphas[j] - alpha_j_old) * K[i,j].T
-                b2 = b - E[j] - Y[i] * (alphas[i] - alpha_i_old) *  K[i,j].T - Y[j] * (alphas[j] - alpha_j_old) * K(j,j).T
+                b2 = b - E[j] - Y[i] * (alphas[i] - alpha_i_old) *  K[i,j].T - Y[j] * (alphas[j] - alpha_j_old) * K[j,j].T
 
                 # Compute b by (19). 
-                if (0 < alphas[i] and alphas[i] < C):
+                if (0. < alphas[i] and alphas[i] < C):
                     b = b1
-                elif (0 < alphas[j] and alphas[j] < C):
+                elif (0. < alphas[j] and alphas[j] < C):
                     b = b2
                 else:
                     b = (b1+b2)/2
@@ -137,7 +190,7 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
         else:
             passes = 0
 
-        print('.')
+        print ".",
         dots = dots + 1
         if dots > 78:
             dots = 0
@@ -148,18 +201,15 @@ def svmTrain(X, Y, C, kernelFunction, tol = 1e-3, max_passes = 20):
     # Save the model
     idx = alphas > 0
     
-    Xr= X[idx,:]
-    yr= Y[idx]
-    alphasr= alphas[idx]
+    model.X= X[idx,:]
+    model.y= Y[idx]
+    model.kernelFunction = kernelFunction
+    model.b= b
+    model.alphas= alphas[idx]
+    
     a1 = alphas*Y
     a2 = a1.T.dot(X)
     wr = a2.T
-    
-    model.X= Xr
-    model.y= yr
-    model.kernelFunction = kernelFunction
-    model.b= b
-    model.alphas= alphasr
     model.w = wr
 
     return model
