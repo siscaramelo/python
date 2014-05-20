@@ -186,7 +186,7 @@ if __name__ == '__main__':
 #     Y[Y==0] = -1
 #     Y = Y.flatten()
 #    model = svmTrain(X, y, C, @linearKernel)
-    model = svm.SVC(kernel='linear', C=10)     # gamma = 1/ sigma
+    model = svm.SVC(kernel='linear', C=0.1)     # gamma = 1/ sigma
     model.fit(X,y)
 
     p = model.predict(X)
@@ -235,5 +235,29 @@ if __name__ == '__main__':
         print(' %-15s (%f) ' % (vocabList[list(coefList).index(weight[i])][1], weight[i]))
 
     print('\n\n')
-    print('\nProgram paused. Press enter to continue.\n')
     raw_input('\nProgram paused 5. Press any key to continue\n')
+
+
+
+    ## =================== Part 6: Try Your Own Emails =====================
+    #  Now that you've trained the spam classifier, you can use it on your own
+    #  emails! In the starter code, we have included spamSample1.txt,
+    #  spamSample2.txt, emailSample1.txt and emailSample2.txt as examples. 
+    #  The following code reads in one of these emails and then uses your 
+    #  learned SVM classifier to determine whether the email is Spam or 
+    #  Not Spam
+
+    # Set the file to be read in (change this to spamSample2.txt,
+    # emailSample1.txt or emailSample2.txt to see different predictions on
+    # different emails types). Try your own emails as well!
+    filename = open('C:\Users\pgiraldez\Documents\Octave\mlclass-ex6\spamSample3.txt')
+
+    # Read and predict
+    file_contents = filename.read()
+    word_indices  = processEmail(file_contents)
+    x             = emailFeatures(word_indices)
+    
+    p = model.predict(x.transpose())
+
+    print('\nProcessed %s\n\nSpam Classification: %d\n' %(filename, p))
+    print('(1 indicates spam, 0 indicates not spam)\n\n')
