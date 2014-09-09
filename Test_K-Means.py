@@ -8,14 +8,14 @@ Created on 22/05/2014
 # Load Python libraries
 from numpy import *
 from numpy import newaxis, r_, c_, mat, e
-from scipy import optimize
+from scipy import optimize, misc
 from scipy.io import loadmat
-# from matplotlib import pyplot as plt
+from matplotlib.image import *
 # import matplotlib.cm as cm
-
 # from sklearn import svm, grid_search
 
 from Clustering import *
+
 
 if __name__ == '__main__':
     
@@ -91,3 +91,44 @@ if __name__ == '__main__':
     print('\nK-Means Done.\n\n')
 
     raw_input('Program paused 3. Press any key to continue\n')
+    
+    ## ============= Part 4: K-Means Clustering on Pixels ===============
+    #  In this exercise, you will use K-Means to compress an image. To do this,
+    #  you will first run K-Means on the colors of the pixels in the image and
+    #  then you will map each pixel on to it's closest centroid.
+    #  
+    #  You should now complete the code in kMeansInitCentroids.m
+    #
+
+    print('\nRunning K-Means clustering on pixels from an image.\n\n')
+
+    #  Load an image of a bird
+    A = double(imread('C:/Users/pgiraldez/Documents/Octave/mlclass-ex7/bird_small.png'))
+
+    # If imread does not work for you, you can try instead
+    #   load ('bird_small.mat');
+
+    A = A / 255.    # Divide by 255 so that all values are in the range 0 - 1
+
+    # Size of the image
+    img_size = shape(A)
+
+    # Reshape the image into an Nx3 matrix where N = number of pixels.
+    # Each row will contain the Red, Green and Blue pixel values
+    # This gives us our dataset matrix X that we will use K-Means on.
+    X = reshape(A, [img_size[0] * img_size[1], 3])
+
+    # Run your K-Means algorithm on this data
+    # You should try different values of K and max_iters here
+    K = 16
+    max_iters = 10
+
+    # When using K-Means, it is important the initialize the centroids
+    # randomly. 
+    # You should complete the code in kMeansInitCentroids.m before proceeding
+    initial_centroids = kMeansInitCentroids(X, K)
+
+    # Run K-Means
+    centroids, idx = runkMeans(X, initial_centroids, max_iters,True)
+
+    raw_input('Program paused 4. Press any key to continue\n')

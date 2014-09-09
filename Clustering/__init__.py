@@ -55,6 +55,18 @@ def computeCentroids(X,idx,K):
     
     return centroids
 
+def kMeansInitCentroids(X, K):
+    # Initialize K centroids to be used in the dataset X
+    centroids = zeros([K, size(X, 1)])
+    
+    # Randomly reorder the indices of examples
+    randidx = random.permutation(size(X, 0))
+    
+    # Take the first K examples as centroids
+    centroids = X[randidx[1:K], :]
+
+    return centroids
+
 def runkMeans(X, initial_centroids, max_iters, plot_progress=False):
     # Initialize values
     m,n                 = shape(X)
