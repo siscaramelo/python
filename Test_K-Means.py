@@ -11,6 +11,7 @@ from numpy import newaxis, r_, c_, mat, e
 from scipy import optimize, misc
 from scipy.io import loadmat
 from matplotlib.image import *
+from matplotlib import pyplot as plt
 # import matplotlib.cm as cm
 # from sklearn import svm, grid_search
 
@@ -132,3 +133,39 @@ if __name__ == '__main__':
     centroids, idx = runkMeans(X, initial_centroids, max_iters,True)
 
     raw_input('Program paused 4. Press any key to continue\n')
+    
+    ## ================= Part 5: Image Compression ======================
+    #  In this part of the exercise, you will use the clusters of K-Means to
+    #  compress an image. To do this, we first find the closest clusters for
+    #  each example. After that, we 
+
+    print('\nApplying K-Means to compress an image.\n\n')
+
+    # Find closest cluster members
+    idx = findClosestCentroids(X, centroids)
+
+    # Essentially, now we have represented the image X as in terms of the
+    # indices in idx. 
+
+    # We can now recover the image from the indices (idx) by mapping each pixel
+    # (specified by it's index in idx) to the centroid value
+    X_recovered = centroids[idx.astype(int)-1,:]
+
+    # Reshape the recovered image into proper dimensions
+    X_recovered = reshape(X_recovered, [img_size[0], img_size[1], 3])
+
+    # Display the original image
+    img=imread('C:/Users/pgiraldez/Documents/Octave/mlclass-ex7/bird_small.png')   
+    
+    plt.subplot(1, 2, 1)
+    plt.imshow(img)
+    plt.title('Original')
+
+    # Display compressed image side by side
+    plt.subplot(1, 2, 2)
+    plt.imshow(X_recovered)
+    plt.title('Compressed')
+
+    plt.show()
+
+    raw_input('Program paused 5. Press any key to continue\n')
