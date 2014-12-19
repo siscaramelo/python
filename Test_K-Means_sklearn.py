@@ -19,6 +19,7 @@ from sklearn.cluster import KMeans
 
 
 from Clustering import *
+import sklearn
 
 
 if __name__ == '__main__':
@@ -36,14 +37,17 @@ if __name__ == '__main__':
 
     # Select an initial set of centroids
     K = 3       # 3 Centroids
+    max_iters = 10
     initial_centroids = array([[3, 3],[6, 2], [8, 5]])
 
     # Find the closest centroids for the examples using the
     # initial_centroids
-    idx = findClosestCentroids(X, initial_centroids)
+    kmeans = KMeans(init=initial_centroids, n_clusters=K, n_init=max_iters)
+    kmeans.fit(X)
+    idx =  kmeans.labels_
 
     print('Closest centroids for the first 3 examples: \n')
-    print idx[0:3].flatten()
+    print idx[0:3]
     print('\n(the closest centroids should be 1, 3, 2 respectively)\n')
 
     raw_input('Program paused 1. Press any key to continue\n')
@@ -55,10 +59,8 @@ if __name__ == '__main__':
     print('\nComputing centroids means.\n\n')
 
     #  Compute means based on the closest centroids found in the previous part.
-    centroids = computeCentroids(X, idx, K)
-
     print('Centroids computed after initial finding of closest centroids: \n')
-    print(centroids)
+    print(kmeans.cluster_centers_)
     print('\n(the centroids should be\n')
     print('   [ 2.428301 3.157924 ]')
     print('   [ 5.813503 2.633656 ]')
@@ -144,36 +146,6 @@ if __name__ == '__main__':
 
     print('\nApplying K-Means to compress an image.\n\n')
 
-    # Find closest cluster members
-    idx = findClosestCentroids(X, centroids)
-
-    # Essentially, now we have represented the image X as in terms of the
-    # indices in idx. 
-
-    # We can now recover the image from the indices (idx) by mapping each pixel
-    # (specified by it's index in idx) to the centroid value
-    X_recovered = centroids[idx.astype(int)-1,:]
-
-    # Reshape the recovered image into proper dimensions
-    X_recovered = reshape(X_recovered, [img_size[0], img_size[1], 3])*255
-
-    # Display the original image
-    img=imread('C:/Users/pgiraldez/Documents/Octave/mlclass-ex7/bird_small.png')   
-    
-    plt.subplot(1, 2, 1)
-    plt.imshow(img)
-    plt.title('Original')
-
-    # Display compressed image side by side
-    plt.subplot(1, 2, 2)
-    plt.imshow(X_recovered)
-    plt.title('Compressed')
-
-    plt.show()
-
-    raw_input('Program paused 5. Press any key to continue\n')
-
-    ## ====== Testing library sklearn ============##
     kmeans = KMeans(init='k-means++', n_clusters=K, n_init=max_iters)
     kmeans.fit(X)
     X_recovered = kmeans.cluster_centers_[kmeans.labels_,:]
@@ -192,4 +164,4 @@ if __name__ == '__main__':
 
     plt.show()
 
-    raw_input('Program paused 6. Press any key to continue\n')
+    raw_input('Program paused 5. Press any key to continue\n')
